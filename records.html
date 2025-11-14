@@ -1,0 +1,575 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Records</title>
+  <style>
+    :root{
+      --bg-a:#071029;
+      --bg-b:#0f1b2b;
+      --surface:rgba(255,255,255,0.04);
+      --text:#e6eef8;
+      --muted:#bfc9d6;
+      --accent:#3b82f6;
+      --border:rgba(255,255,255,0.1);
+    }
+    .light-theme{
+      --bg-a:#f7fbff;
+      --bg-b:#eef6ff;
+      --surface:rgba(2,6,23,0.04);
+      --text:#0b1220;
+      --muted:#556074;
+      --accent:#2563eb;
+      --border:rgba(2,6,23,0.1);
+    }
+    *{box-sizing:border-box;margin:0;padding:0;font-family:Inter, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial}
+    html,body{height:100%;min-height:100vh}
+    body{
+      background:linear-gradient(180deg,var(--bg-a),var(--bg-b));
+      color:var(--text);
+      display:flex;
+      flex-direction:column;
+      transition: background 0.35s ease, color 0.35s ease;
+    }
+
+    .header{
+      padding:20px 24px;
+      border-bottom:1px solid var(--border);
+      background:var(--bg-a);
+    }
+
+    .header h1{font-size:24px;margin-bottom:4px}
+    .header p{color:var(--muted);font-size:14px}
+
+    .container{
+      flex:1;
+      max-width:1000px;
+      width:100%;
+      margin:0 auto;
+      padding:24px;
+      overflow-y:auto;
+    }
+
+    .records-section{
+      background:var(--surface);
+      border:1px solid var(--border);
+      border-radius:12px;
+      padding:20px;
+      margin-bottom:16px;
+    }
+
+    .section-title{
+      font-size:16px;
+      font-weight:600;
+      margin-bottom:16px;
+      display:flex;
+      align-items:center;
+      gap:8px;
+    }
+
+    .record-item{
+      background:rgba(255,255,255,0.02);
+      padding:12px;
+      border-radius:8px;
+      margin-bottom:8px;
+      border-left:4px solid var(--accent);
+      display:flex;
+      justify-content:space-between;
+      align-items:center;
+    }
+
+    .record-info{
+      flex:1;
+    }
+
+    .record-name{font-weight:600;font-size:14px}
+    .record-detail{font-size:12px;color:var(--muted);margin-top:2px}
+
+    .record-status{
+      font-size:12px;
+      padding:4px 8px;
+      border-radius:4px;
+      background:rgba(34,197,94,0.2);
+      color:#22c55e;
+      font-weight:500;
+    }
+
+    .record-status.pending{
+      background:rgba(249,115,22,0.2);
+      color:#f97316;
+    }
+
+    .table-container{
+      overflow-x:auto;
+      margin-top:12px;
+    }
+
+    table{
+      width:100%;
+      border-collapse:collapse;
+      font-size:13px;
+    }
+
+    th{
+      background:rgba(255,255,255,0.05);
+      padding:10px;
+      text-align:left;
+      font-weight:600;
+      border-bottom:1px solid var(--border);
+      color:var(--text);
+    }
+
+    td{
+      padding:10px;
+      border-bottom:1px solid var(--border);
+      color:var(--muted);
+    }
+
+    tr:hover{background:rgba(255,255,255,0.02)}
+
+    .badge{
+      display:inline-block;
+      padding:2px 8px;
+      border-radius:4px;
+      font-size:11px;
+      font-weight:500;
+    }
+
+    .badge.verified{
+      background:rgba(34,197,94,0.2);
+      color:#22c55e;
+    }
+
+    .badge.pending{
+      background:rgba(249,115,22,0.2);
+      color:#f97316;
+    }
+
+    .btn{
+      display:inline-block;
+      padding:8px 12px;
+      background:var(--accent);
+      color:white;
+      text-decoration:none;
+      border:none;
+      border-radius:6px;
+      cursor:pointer;
+      font-size:12px;
+      transition:all 0.2s ease;
+    }
+
+    .btn:hover{transform:translateY(-2px);opacity:0.9}
+
+    .btn.secondary{
+      background:rgba(255,255,255,0.06);
+      color:var(--text);
+    }
+
+    .footer{
+      padding:20px 24px;
+      border-top:1px solid var(--border);
+      background:var(--bg-a);
+      display:flex;
+      justify-content:space-between;
+      align-items:center;
+    }
+
+    .footer p{font-size:12px;color:var(--muted)}
+
+    .tabs{
+      display:flex;
+      gap:8px;
+      margin-bottom:16px;
+      border-bottom:1px solid var(--border);
+      flex-wrap:wrap;
+    }
+
+    .tab{
+      padding:10px 16px;
+      background:transparent;
+      border:none;
+      color:var(--muted);
+      cursor:pointer;
+      font-size:14px;
+      font-weight:500;
+      border-bottom:2px solid transparent;
+      transition:all 0.2s ease;
+    }
+
+    .tab.active{
+      color:var(--text);
+      border-bottom-color:var(--accent);
+    }
+
+    @media(max-width:768px){
+      .container{padding:16px}
+      .record-item{flex-direction:column;align-items:flex-start;gap:8px}
+      table{font-size:11px}
+      th,td{padding:8px}
+    }
+  </style>
+  <script>
+    function applySavedTheme(){
+      try{const saved=localStorage.getItem('theme');document.body.classList.toggle('light-theme',saved==='light')}catch(e){}
+    }
+    applySavedTheme();
+    window.addEventListener('pageshow', applySavedTheme);
+
+    document.addEventListener('DOMContentLoaded', ()=>{
+      document.getElementById('year').innerText = new Date().getFullYear();
+
+      // Tab switching
+      document.querySelectorAll('.tab').forEach(tab=>{
+        tab.addEventListener('click', ()=>{
+          const tabName = tab.getAttribute('data-tab');
+          document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
+          document.querySelectorAll('.tab-content').forEach(c=>c.style.display='none');
+          tab.classList.add('active');
+          document.getElementById(tabName).style.display='block';
+        });
+      });
+
+      // Download handlers
+      document.querySelectorAll('.download-btn').forEach(btn=>{
+        btn.addEventListener('click', (e)=>{
+          e.preventDefault();
+          const format = btn.getAttribute('data-format');
+          alert(`Document will be downloaded as ${format.toUpperCase()}`);
+        });
+      });
+
+      // View details handlers
+      document.querySelectorAll('.view-btn').forEach(btn=>{
+        btn.addEventListener('click', ()=>{
+          alert('Detailed view opening...');
+        });
+      });
+    });
+  </script>
+</head>
+<body>
+  <div class="header">
+    <h1>Records</h1>
+    <p>Your stored information, documents, and activity logs</p>
+  </div>
+
+  <div class="container">
+    <!-- Tab Navigation -->
+    <div class="tabs">
+      <button class="tab active" data-tab="documents">📄 Documents</button>
+      <button class="tab" data-tab="applications">📋 Applications</button>
+      <button class="tab" data-tab="attendance-logs">📅 Attendance</button>
+      <button class="tab" data-tab="assignments">📝 Assignments</button>
+      <button class="tab" data-tab="activity">🎯 Activity</button>
+      <button class="tab" data-tab="verification">✓ Verification</button>
+    </div>
+
+    <!-- Personal Documents -->
+    <div id="documents" class="tab-content">
+      <div class="records-section">
+        <div class="section-title">📄 Personal Documents</div>
+        
+        <div class="record-item">
+          <div class="record-info">
+            <div class="record-name">Student ID Card</div>
+            <div class="record-detail">Issued: Jan 15, 2024 | Expires: Jan 15, 2025</div>
+          </div>
+          <div style="display:flex;gap:6px">
+            <button class="btn view-btn">View</button>
+            <a href="#" class="btn secondary download-btn" data-format="pdf">Download</a>
+          </div>
+        </div>
+
+        <div class="record-item">
+          <div class="record-info">
+            <div class="record-name">Bonafide Certificate</div>
+            <div class="record-detail">Issued: Nov 10, 2024</div>
+          </div>
+          <div style="display:flex;gap:6px">
+            <button class="btn view-btn">View</button>
+            <a href="#" class="btn secondary download-btn" data-format="pdf">Download</a>
+          </div>
+        </div>
+
+        <div class="record-item">
+          <div class="record-info">
+            <div class="record-name">Fee Receipt - Semester 1</div>
+            <div class="record-detail">Amount: ₹50,000 | Date: Aug 01, 2024</div>
+          </div>
+          <div style="display:flex;gap:6px">
+            <button class="btn view-btn">View</button>
+            <a href="#" class="btn secondary download-btn" data-format="pdf">Download</a>
+          </div>
+        </div>
+
+        <div class="record-item">
+          <div class="record-info">
+            <div class="record-name">Library Card</div>
+            <div class="record-detail">Card No: LIB-2024-001 | Status: Active</div>
+          </div>
+          <div style="display:flex;gap:6px">
+            <button class="btn view-btn">View</button>
+            <a href="#" class="btn secondary download-btn" data-format="pdf">Download</a>
+          </div>
+        </div>
+
+        <div class="record-item">
+          <div class="record-info">
+            <div class="record-name">Marksheet - Semester 1</div>
+            <div class="record-detail">GPA: 8.5 | Total Marks: 425/500</div>
+          </div>
+          <div style="display:flex;gap:6px">
+            <button class="btn view-btn">View</button>
+            <a href="#" class="btn secondary download-btn" data-format="pdf">Download</a>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Applications History -->
+    <div id="applications" class="tab-content" style="display:none">
+      <div class="records-section">
+        <div class="section-title">📋 Application History</div>
+        
+        <div class="table-container">
+          <table>
+            <thead>
+              <tr>
+                <th>Application Type</th>
+                <th>Date Applied</th>
+                <th>Status</th>
+                <th>Action</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>Leave Application</td>
+                <td>Nov 12, 2024</td>
+                <td><span class="badge verified">Approved</span></td>
+                <td><button class="btn view-btn" style="padding:4px 8px;font-size:11px">View</button></td>
+              </tr>
+              <tr>
+                <td>Gate Pass</td>
+                <td>Nov 05, 2024</td>
+                <td><span class="badge verified">Approved</span></td>
+                <td><button class="btn view-btn" style="padding:4px 8px;font-size:11px">View</button></td>
+              </tr>
+              <tr>
+                <td>Bonafide Certificate Request</td>
+                <td>Nov 10, 2024</td>
+                <td><span class="badge verified">Approved</span></td>
+                <td><button class="btn view-btn" style="padding:4px 8px;font-size:11px">View</button></td>
+              </tr>
+              <tr>
+                <td>Character Certificate</td>
+                <td>Oct 28, 2024</td>
+                <td><span class="badge pending">Pending</span></td>
+                <td><button class="btn view-btn" style="padding:4px 8px;font-size:11px">View</button></td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- Attendance Logs -->
+    <div id="attendance-logs" class="tab-content" style="display:none">
+      <div class="records-section">
+        <div class="section-title">📅 Attendance Logs</div>
+        
+        <div class="table-container">
+          <table>
+            <thead>
+              <tr>
+                <th>Date</th>
+                <th>Subject</th>
+                <th>Check-in Time</th>
+                <th>Room No.</th>
+                <th>Status</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>Nov 14, 2024</td>
+                <td>Mathematics-I</td>
+                <td>09:05 AM</td>
+                <td>A-101</td>
+                <td><span class="badge verified">Present</span></td>
+              </tr>
+              <tr>
+                <td>Nov 13, 2024</td>
+                <td>Physics</td>
+                <td>10:15 AM</td>
+                <td>B-205</td>
+                <td><span class="badge verified">Present</span></td>
+              </tr>
+              <tr>
+                <td>Nov 12, 2024</td>
+                <td>Electronics</td>
+                <td>02:10 PM</td>
+                <td>C-102</td>
+                <td><span class="badge pending">Late</span></td>
+              </tr>
+              <tr>
+                <td>Nov 11, 2024</td>
+                <td>Programming</td>
+                <td>09:00 AM</td>
+                <td>LAB-1</td>
+                <td><span class="badge verified">Present</span></td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- Assignments -->
+    <div id="assignments" class="tab-content" style="display:none">
+      <div class="records-section">
+        <div class="section-title">📝 Submitted Assignments</div>
+        
+        <div class="table-container">
+          <table>
+            <thead>
+              <tr>
+                <th>Subject</th>
+                <th>Assignment</th>
+                <th>Submitted</th>
+                <th>Grade</th>
+                <th>Feedback</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>Mathematics-I</td>
+                <td>Assignment 3: Calculus</td>
+                <td>Nov 12, 2024</td>
+                <td>A+</td>
+                <td><button class="btn view-btn" style="padding:4px 8px;font-size:11px">View</button></td>
+              </tr>
+              <tr>
+                <td>Physics</td>
+                <td>Experiment Report</td>
+                <td>Nov 10, 2024</td>
+                <td>A</td>
+                <td><button class="btn view-btn" style="padding:4px 8px;font-size:11px">View</button></td>
+              </tr>
+              <tr>
+                <td>Programming</td>
+                <td>Project: Student Management System</td>
+                <td>Nov 08, 2024</td>
+                <td>A+</td>
+                <td><button class="btn view-btn" style="padding:4px 8px;font-size:11px">View</button></td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- Activity Record -->
+    <div id="activity" class="tab-content" style="display:none">
+      <div class="records-section">
+        <div class="section-title">🎯 Activity Record</div>
+        
+        <div class="record-item">
+          <div class="record-info">
+            <div class="record-name">Coding Club</div>
+            <div class="record-detail">Member since: Aug 2024 | Status: Active</div>
+          </div>
+          <span class="record-status">Member</span>
+        </div>
+
+        <div class="record-item">
+          <div class="record-info">
+            <div class="record-name">Sports Club - Basketball Team</div>
+            <div class="record-detail">Joined: Sep 2024 | Events: 5</div>
+          </div>
+          <span class="record-status">Participant</span>
+        </div>
+
+        <div class="record-item">
+          <div class="record-info">
+            <div class="record-name">Cultural Event - Diwali Celebration</div>
+            <div class="record-detail">Participated: Oct 28, 2024 | Role: Volunteer</div>
+          </div>
+          <span class="record-status">Participated</span>
+        </div>
+
+        <div class="record-item">
+          <div class="record-info">
+            <div class="record-name">Workshop - Web Development</div>
+            <div class="record-detail">Attended: Nov 05, 2024 | Certificate: Yes</div>
+          </div>
+          <span class="record-status">Completed</span>
+        </div>
+
+        <div class="record-item">
+          <div class="record-info">
+            <div class="record-name">Disciplinary Record</div>
+            <div class="record-detail">Status: Clean</div>
+          </div>
+          <span class="record-status">Good Standing</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Verification Status -->
+    <div id="verification" class="tab-content" style="display:none">
+      <div class="records-section">
+        <div class="section-title">✓ Verification Status</div>
+        
+        <div class="table-container">
+          <table>
+            <thead>
+              <tr>
+                <th>Document</th>
+                <th>Submitted Date</th>
+                <th>Verification Status</th>
+                <th>Verified By</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>Student ID Card</td>
+                <td>Jan 15, 2024</td>
+                <td><span class="badge verified">Verified</span></td>
+                <td>Admin - Dr. Sharma</td>
+              </tr>
+              <tr>
+                <td>Address Proof</td>
+                <td>Aug 01, 2024</td>
+                <td><span class="badge verified">Verified</span></td>
+                <td>Office - Ms. Patel</td>
+              </tr>
+              <tr>
+                <td>Medical Certificate</td>
+                <td>Sep 15, 2024</td>
+                <td><span class="badge pending">Pending</span></td>
+                <td>-</td>
+              </tr>
+              <tr>
+                <td>Character Certificate</td>
+                <td>Oct 28, 2024</td>
+                <td><span class="badge pending">Pending</span></td>
+                <td>-</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <div style="height:20px"></div>
+  </div>
+
+  <div class="footer">
+    <div>
+      <p>© <span id="year"></span> Student Records System | All documents are confidential</p>
+    </div>
+    <a class="btn secondary" href="dashboard2.html">← Back to Dashboard</a>
+  </div>
+</body>
+</html>
+

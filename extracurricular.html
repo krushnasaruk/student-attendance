@@ -1,0 +1,728 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Extracurricular Activities</title>
+  <style>
+    :root{
+      --bg-a:#071029;
+      --bg-b:#0f1b2b;
+      --surface:rgba(255,255,255,0.04);
+      --text:#e6eef8;
+      --muted:#bfc9d6;
+      --accent:#3b82f6;
+      --accent-alt:#8b5cf6;
+      --border:rgba(255,255,255,0.1);
+    }
+    .light-theme{
+      --bg-a:#f7fbff;
+      --bg-b:#eef6ff;
+      --surface:rgba(2,6,23,0.04);
+      --text:#0b1220;
+      --muted:#556074;
+      --accent:#2563eb;
+      --accent-alt:#7c3aed;
+      --border:rgba(2,6,23,0.1);
+    }
+    *{box-sizing:border-box;margin:0;padding:0;font-family:Inter, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial}
+    html,body{height:100%;min-height:100vh}
+    body{
+      background:linear-gradient(180deg,var(--bg-a),var(--bg-b));
+      color:var(--text);
+      display:flex;
+      flex-direction:column;
+      transition: background 0.35s ease, color 0.35s ease;
+    }
+
+    .header{
+      padding:20px 24px;
+      border-bottom:1px solid var(--border);
+      background:var(--bg-a);
+    }
+
+    .header h1{font-size:24px;margin-bottom:4px}
+    .header p{color:var(--muted);font-size:14px}
+
+    .container{
+      flex:1;
+      max-width:1200px;
+      width:100%;
+      margin:0 auto;
+      padding:24px;
+      overflow-y:auto;
+    }
+
+    .tabs{
+      display:flex;
+      gap:8px;
+      margin-bottom:24px;
+      border-bottom:1px solid var(--border);
+      flex-wrap:wrap;
+    }
+
+    .tab{
+      padding:10px 16px;
+      background:transparent;
+      border:none;
+      color:var(--muted);
+      cursor:pointer;
+      font-size:14px;
+      font-weight:500;
+      border-bottom:2px solid transparent;
+      transition:all 0.2s ease;
+    }
+
+    .tab.active{
+      color:var(--text);
+      border-bottom-color:var(--accent);
+    }
+
+    /* Clubs Grid */
+    .clubs-grid{
+      display:grid;
+      grid-template-columns:repeat(auto-fill, minmax(280px, 1fr));
+      gap:20px;
+      margin-bottom:24px;
+    }
+
+    .club-card{
+      background:var(--surface);
+      border:1px solid var(--border);
+      border-radius:12px;
+      overflow:hidden;
+      cursor:pointer;
+      transition:all 0.3s ease;
+    }
+
+    .club-card:hover{
+      transform:translateY(-4px);
+      border-color:var(--accent);
+      box-shadow:0 8px 24px rgba(59,130,246,0.15);
+    }
+
+    .club-image{
+      width:100%;
+      height:180px;
+      background:linear-gradient(135deg, var(--accent), var(--accent-alt));
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      font-size:48px;
+      color:white;
+      position:relative;
+      overflow:hidden;
+    }
+
+    .club-image::before{
+      content:'';
+      position:absolute;
+      top:0;
+      left:0;
+      right:0;
+      bottom:0;
+      background:repeating-linear-gradient(45deg, transparent, transparent 10px, rgba(255,255,255,0.1) 10px, rgba(255,255,255,0.1) 20px);
+      animation:shimmer 3s infinite;
+    }
+
+    @keyframes shimmer{
+      0%{transform:translateX(-100%)}
+      100%{transform:translateX(100%)}
+    }
+
+    .club-content{
+      padding:16px;
+    }
+
+    .club-title{
+      font-size:16px;
+      font-weight:600;
+      margin-bottom:4px;
+    }
+
+    .club-subtitle{
+      font-size:12px;
+      color:var(--muted);
+      margin-bottom:8px;
+    }
+
+    .club-description{
+      font-size:13px;
+      color:var(--muted);
+      line-height:1.5;
+      margin-bottom:12px;
+    }
+
+    .club-meta{
+      display:flex;
+      justify-content:space-between;
+      align-items:center;
+      padding-top:8px;
+      border-top:1px solid var(--border);
+    }
+
+    .club-members{
+      font-size:12px;
+      color:var(--muted);
+    }
+
+    .view-btn{
+      padding:6px 12px;
+      background:var(--accent);
+      color:white;
+      border:none;
+      border-radius:6px;
+      cursor:pointer;
+      font-size:12px;
+      font-weight:500;
+      transition:all 0.2s ease;
+    }
+
+    .view-btn:hover{
+      transform:translateY(-2px);
+      opacity:0.9;
+    }
+
+    /* Portfolio Detail View */
+    .portfolio-detail{
+      display:none;
+    }
+
+    .portfolio-detail.active{
+      display:block;
+      animation:fadeIn 0.3s ease;
+    }
+
+    @keyframes fadeIn{
+      from{opacity:0;transform:translateY(10px)}
+      to{opacity:1;transform:translateY(0)}
+    }
+
+    .portfolio-header{
+      background:linear-gradient(135deg, var(--accent), var(--accent-alt));
+      padding:40px 24px;
+      border-radius:12px;
+      margin-bottom:24px;
+      color:white;
+      position:relative;
+      overflow:hidden;
+    }
+
+    .portfolio-header::before{
+      content:'';
+      position:absolute;
+      top:0;
+      left:0;
+      right:0;
+      bottom:0;
+      background:repeating-linear-gradient(45deg, transparent, transparent 10px, rgba(255,255,255,0.1) 10px, rgba(255,255,255,0.1) 20px);
+    }
+
+    .portfolio-header-content{
+      position:relative;
+      z-index:1;
+    }
+
+    .portfolio-title{
+      font-size:32px;
+      font-weight:700;
+      margin-bottom:8px;
+    }
+
+    .portfolio-subtitle{
+      font-size:14px;
+      opacity:0.9;
+      margin-bottom:16px;
+    }
+
+    .portfolio-stats{
+      display:flex;
+      gap:24px;
+      margin-top:16px;
+      flex-wrap:wrap;
+    }
+
+    .stat{
+      display:flex;
+      flex-direction:column;
+      gap:4px;
+    }
+
+    .stat-value{
+      font-size:20px;
+      font-weight:600;
+    }
+
+    .stat-label{
+      font-size:12px;
+      opacity:0.8;
+    }
+
+    .portfolio-section{
+      background:var(--surface);
+      border:1px solid var(--border);
+      border-radius:12px;
+      padding:20px;
+      margin-bottom:20px;
+    }
+
+    .portfolio-section-title{
+      font-size:18px;
+      font-weight:600;
+      margin-bottom:16px;
+      display:flex;
+      align-items:center;
+      gap:8px;
+    }
+
+    .section-icon{
+      font-size:20px;
+    }
+
+    .about-text{
+      line-height:1.8;
+      color:var(--muted);
+      margin-bottom:12px;
+    }
+
+    .projects-grid{
+      display:grid;
+      grid-template-columns:repeat(auto-fill, minmax(220px, 1fr));
+      gap:16px;
+    }
+
+    .project-card{
+      background:rgba(255,255,255,0.02);
+      border:1px solid var(--border);
+      border-radius:8px;
+      padding:16px;
+      transition:all 0.2s ease;
+    }
+
+    .project-card:hover{
+      background:rgba(255,255,255,0.04);
+      border-color:var(--accent);
+    }
+
+    .project-title{
+      font-weight:600;
+      margin-bottom:6px;
+    }
+
+    .project-desc{
+      font-size:12px;
+      color:var(--muted);
+      line-height:1.5;
+    }
+
+    .members-grid{
+      display:grid;
+      grid-template-columns:repeat(auto-fill, minmax(150px, 1fr));
+      gap:12px;
+    }
+
+    .member-card{
+      background:rgba(255,255,255,0.02);
+      border:1px solid var(--border);
+      border-radius:8px;
+      padding:12px;
+      text-align:center;
+    }
+
+    .member-avatar{
+      width:50px;
+      height:50px;
+      background:linear-gradient(135deg, var(--accent), var(--accent-alt));
+      border-radius:50%;
+      margin:0 auto 8px;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      font-size:24px;
+      color:white;
+    }
+
+    .member-name{
+      font-weight:500;
+      font-size:13px;
+      margin-bottom:2px;
+    }
+
+    .member-role{
+      font-size:11px;
+      color:var(--muted);
+    }
+
+    .achievements-list{
+      list-style:none;
+    }
+
+    .achievements-list li{
+      padding:12px;
+      background:rgba(255,255,255,0.02);
+      border-left:3px solid var(--accent);
+      margin-bottom:8px;
+      border-radius:4px;
+      font-size:13px;
+      line-height:1.6;
+    }
+
+    .back-btn{
+      display:inline-flex;
+      align-items:center;
+      gap:6px;
+      padding:8px 12px;
+      background:var(--surface);
+      border:1px solid var(--border);
+      color:var(--text);
+      border-radius:6px;
+      cursor:pointer;
+      font-size:12px;
+      margin-bottom:16px;
+      transition:all 0.2s ease;
+    }
+
+    .back-btn:hover{
+      background:rgba(255,255,255,0.06);
+    }
+
+    .footer{
+      padding:20px 24px;
+      border-top:1px solid var(--border);
+      background:var(--bg-a);
+      display:flex;
+      justify-content:space-between;
+      align-items:center;
+    }
+
+    .footer p{font-size:12px;color:var(--muted)}
+
+    .nav-btn{
+      padding:8px 16px;
+      background:var(--accent);
+      color:white;
+      text-decoration:none;
+      border:none;
+      border-radius:6px;
+      cursor:pointer;
+      font-size:12px;
+      transition:all 0.2s ease;
+    }
+
+    .nav-btn:hover{transform:translateY(-2px);opacity:0.9}
+
+    @media(max-width:768px){
+      .container{padding:16px}
+      .clubs-grid{grid-template-columns:1fr}
+      .portfolio-header{padding:24px}
+      .portfolio-title{font-size:24px}
+      .portfolio-stats{flex-direction:column;gap:12px}
+    }
+  </style>
+  <script>
+    function applySavedTheme(){
+      try{const saved=localStorage.getItem('theme');document.body.classList.toggle('light-theme',saved==='light')}catch(e){}
+    }
+    applySavedTheme();
+    window.addEventListener('pageshow', applySavedTheme);
+
+    function showClubPortfolio(clubId) {
+      document.querySelectorAll('.portfolio-detail').forEach(p => p.classList.remove('active'));
+      document.getElementById('clubs-view').style.display = 'none';
+      const portfolio = document.getElementById(clubId + '-portfolio');
+      if (portfolio) {
+        portfolio.classList.add('active');
+      }
+    }
+
+    function backToClubs() {
+      document.querySelectorAll('.portfolio-detail').forEach(p => p.classList.remove('active'));
+      document.getElementById('clubs-view').style.display = 'block';
+    }
+
+    document.addEventListener('DOMContentLoaded', () => {
+      document.querySelectorAll('.tab').forEach(tab => {
+        tab.addEventListener('click', () => {
+          const tabName = tab.getAttribute('data-tab');
+          document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+          document.querySelectorAll('.tab-content').forEach(c => c.style.display = 'none');
+          tab.classList.add('active');
+          document.getElementById(tabName).style.display = 'block';
+        });
+      });
+
+      document.querySelectorAll('.view-btn').forEach(btn => {
+        btn.addEventListener('click', (e) => {
+          e.preventDefault();
+          const clubId = btn.getAttribute('data-club');
+          showClubPortfolio(clubId);
+        });
+      });
+
+      document.querySelectorAll('.back-btn').forEach(btn => {
+        btn.addEventListener('click', backToClubs);
+      });
+    });
+  </script>
+</head>
+<body>
+  <div class="header">
+    <h1>Extracurricular Activities</h1>
+    <p>Explore clubs, societies, and student organizations</p>
+  </div>
+
+  <div class="container">
+    <div class="tabs">
+      <button class="tab active" data-tab="clubs-section">🎯 Clubs</button>
+      <button class="tab" data-tab="societies-section">🎭 Societies</button>
+      <button class="tab" data-tab="events-section">📅 Events & Competitions</button>
+      <button class="tab" data-tab="interests-section">⭐ My Interests</button>
+    </div>
+
+    <div id="clubs-section" class="tab-content">
+      <div id="clubs-view">
+        <div class="clubs-grid">
+          <div class="club-card">
+            <div class="club-image">💻</div>
+            <div class="club-content">
+              <div class="club-title">Coders Club</div>
+              <div class="club-subtitle">Programming & Web Development</div>
+              <div class="club-description">A community dedicated to learning programming languages, web development, and software engineering.</div>
+              <div class="club-meta">
+                <div class="club-members">👥 145 Members</div>
+                <button class="view-btn" data-club="coders">View</button>
+              </div>
+            </div>
+          </div>
+
+          <div class="club-card">
+            <div class="club-image" style="background: url('cybersecurity club.img/head.jpg') center/cover; font-size: 0;"></div>
+            <div class="club-content">
+              <div class="club-title">Cybersecurity Club</div>
+              <div class="club-subtitle">Security & Ethical Hacking</div>
+              <div class="club-description">Learn cybersecurity, ethical hacking, and network protection. Engage in CTF competitions.</div>
+              <div class="club-meta">
+                <div class="club-members">👥 98 Members</div>
+                <button class="view-btn" data-club="cybersecurity">View</button>
+              </div>
+            </div>
+          </div>
+
+          <div class="club-card">
+            <div class="club-image">🎤</div>
+            <div class="club-content">
+              <div class="club-title">Speak Society</div>
+              <div class="club-subtitle">Public Speaking & Communication</div>
+              <div class="club-description">Master public speaking, debate, and communication skills for personal and professional growth.</div>
+              <div class="club-meta">
+                <div class="club-members">👥 127 Members</div>
+                <button class="view-btn" data-club="speaksociety">View</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div id="coders-portfolio" class="portfolio-detail">
+        <button class="back-btn">← Back to Clubs</button>
+        <div class="portfolio-header" style="background: linear-gradient(135deg, rgba(59,130,246,0.8), rgba(139,92,246,0.8)), url('cybersecurity club.img/WhatsApp Image 2025-11-14 at 17.24.46_2e51dfd2.jpg') center/cover; background-blend-mode: overlay;">
+          <div class="portfolio-header-content">
+            <div class="portfolio-title">💻 Coders Club</div>
+            <div class="portfolio-subtitle">Programming & Web Development Community</div>
+            <div class="portfolio-stats">
+              <div class="stat"><div class="stat-value">145</div><div class="stat-label">Active Members</div></div>
+              <div class="stat"><div class="stat-value">12</div><div class="stat-label">Projects Completed</div></div>
+              <div class="stat"><div class="stat-value">8</div><div class="stat-label">Workshops Held</div></div>
+            </div>
+          </div>
+        </div>
+
+        <div class="portfolio-section">
+          <div class="portfolio-section-title"><span class="section-icon">📝</span> About Club</div>
+          <p class="about-text">The Coders Club is a vibrant community of passionate programmers and developers. We focus on building real-world projects, sharing knowledge, and fostering a collaborative learning environment. Our members work with various technologies including JavaScript, Python, Java, and modern frameworks like React and Vue.</p>
+          <p class="about-text">Founded in August 2024, we've grown to become one of the most active technical clubs on campus. We conduct regular workshops, hackathons, and mentoring sessions to help students enhance their coding skills.</p>
+        </div>
+
+        <div class="portfolio-section">
+          <div class="portfolio-section-title"><span class="section-icon">🚀</span> Featured Projects</div>
+          <div class="projects-grid">
+            <div class="project-card"><div class="project-title">Student Portal</div><div class="project-desc">Full-stack web application for student management system with user authentication and real-time database</div></div>
+            <div class="project-card"><div class="project-title">AI Chatbot</div><div class="project-desc">Machine learning chatbot implementation with natural language processing for college queries</div></div>
+            <div class="project-card"><div class="project-title">Mobile App</div><div class="project-desc">Flutter-based mobile application for student attendance and communication</div></div>
+          </div>
+        </div>
+
+        <div class="portfolio-section">
+          <div class="portfolio-section-title"><span class="section-icon">👥</span> Club Leadership</div>
+          <div class="members-grid">
+            <div class="member-card"><div class="member-avatar">👨‍💻</div><div class="member-name">Arjun Patel</div><div class="member-role">Club Lead</div></div>
+            <div class="member-card"><div class="member-avatar">👩‍💻</div><div class="member-name">Priya Singh</div><div class="member-role">Co-Lead</div></div>
+            <div class="member-card"><div class="member-avatar">👨‍💼</div><div class="member-name">Rahul Kumar</div><div class="member-role">Technical Lead</div></div>
+          </div>
+        </div>
+
+        <div class="portfolio-section">
+          <div class="portfolio-section-title"><span class="section-icon">🏆</span> Achievements</div>
+          <ul class="achievements-list">
+            <li>🏆 Won Inter-College Hackathon 2024 - First Prize with innovative student management solution</li>
+            <li>📱 Launched 3 production-ready applications used by 500+ students</li>
+            <li>🎓 Conducted 12+ workshops on web development, Python, and JavaScript</li>
+            <li>🌟 500+ lines of open-source code contributed to community projects</li>
+            <li>📊 Achieved 90% member satisfaction rate in annual survey</li>
+          </ul>
+        </div>
+
+        <div class="portfolio-section">
+          <div class="portfolio-section-title"><span class="section-icon">📧</span> Get Involved</div>
+          <p class="about-text">Interested in joining the Coders Club? We welcome developers of all skill levels! Attend our weekly meetups every Wednesday at 5 PM in the Computer Lab. For more information, contact us at coders@college.edu or visit our Discord server.</p>
+          <button class="nav-btn" style="margin-top:12px">Join Club</button>
+        </div>
+      </div>
+
+      <div id="cybersecurity-portfolio" class="portfolio-detail">
+        <button class="back-btn">← Back to Clubs</button>
+        <div class="portfolio-header" style="background: linear-gradient(135deg, rgba(59,130,246,0.8), rgba(139,92,246,0.8)), url('cybersecurity club.img/WhatsApp Image 2025-11-14 at 17.20.51_370bccee.jpg') center/cover; background-blend-mode: overlay;">
+          <div class="portfolio-header-content">
+            <div class="portfolio-title">🔒 Cybersecurity Club</div>
+            <div class="portfolio-subtitle">Security & Ethical Hacking</div>
+            <div class="portfolio-stats">
+              <div class="stat"><div class="stat-value">98</div><div class="stat-label">Active Members</div></div>
+              <div class="stat"><div class="stat-value">8</div><div class="stat-label">Projects Completed</div></div>
+              <div class="stat"><div class="stat-value">5</div><div class="stat-label">Competitions Won</div></div>
+            </div>
+          </div>
+        </div>
+
+        <div class="portfolio-section">
+          <div class="portfolio-section-title"><span class="section-icon">📝</span> About Club</div>
+          <p class="about-text">The Cybersecurity Club focuses on educating students about digital security, ethical hacking, and cybersecurity best practices. We organize CTF (Capture The Flag) competitions, security workshops, and penetration testing simulations. Members learn about network security, cryptography, web application security, and threat analysis.</p>
+          <p class="about-text">Founded in September 2024, our mission is to create awareness about cybersecurity threats and develop the next generation of security professionals. We provide hands-on training in a safe and ethical environment.</p>
+        </div>
+
+        <div class="portfolio-section">
+          <div class="portfolio-section-title"><span class="section-icon">🛡️</span> Featured Projects</div>
+          <div class="projects-grid">
+            <div class="project-card"><div class="project-title">Vulnerability Scanner</div><div class="project-desc">Automated web vulnerability detection tool for identifying common security issues</div></div>
+            <div class="project-card"><div class="project-title">Security Audit System</div><div class="project-desc">Comprehensive network security assessment platform with reporting capabilities</div></div>
+            <div class="project-card"><div class="project-title">Encryption Tools</div><div class="project-desc">Modern encryption implementation suite supporting various cryptographic algorithms</div></div>
+          </div>
+        </div>
+
+        <div class="portfolio-section">
+          <div class="portfolio-section-title"><span class="section-icon">👥</span> Club Leadership</div>
+          <div class="members-grid">
+            <div class="member-card"><div class="member-avatar">🕵️‍♂️</div><div class="member-name">Vikram Singh</div><div class="member-role">Club Lead</div></div>
+            <div class="member-card"><div class="member-avatar">👩‍🔬</div><div class="member-name">Neha Verma</div><div class="member-role">Co-Lead</div></div>
+            <div class="member-card"><div class="member-avatar">🔐</div><div class="member-name">Aditya Sharma</div><div class="member-role">Security Expert</div></div>
+          </div>
+        </div>
+
+        <div class="portfolio-section">
+          <div class="portfolio-section-title"><span class="section-icon">🏆</span> Achievements</div>
+          <ul class="achievements-list">
+            <li>🏆 3rd Place in National Cyber Security Challenge 2024</li>
+            <li>🔍 Conducted 5 vulnerability assessments for campus systems</li>
+            <li>📚 Published 8 security awareness articles in tech magazines</li>
+            <li>🎯 100% success rate in CTF competitions (5/5 wins)</li>
+            <li>👨‍🎓 Trained 200+ students in cybersecurity fundamentals</li>
+          </ul>
+        </div>
+
+        <div class="portfolio-section">
+          <div class="portfolio-section-title"><span class="section-icon">📧</span> Get Involved</div>
+          <p class="about-text">Join our community of security enthusiasts and ethical hackers! Participate in our monthly CTF competitions and security workshops. No prior experience required. Meetings held every Thursday at 4 PM in the IT Lab. Contact us at cybersecurity@college.edu</p>
+          <button class="nav-btn" style="margin-top:12px">Join Club</button>
+        </div>
+      </div>
+
+      <div id="speaksociety-portfolio" class="portfolio-detail">
+        <button class="back-btn">← Back to Clubs</button>
+        <div class="portfolio-header" style="background: linear-gradient(135deg, rgba(59,130,246,0.8), rgba(139,92,246,0.8)), url('cybersecurity club.img/WhatsApp Image 2025-11-14 at 17.24.49_20063a27.jpg') center/cover; background-blend-mode: overlay;">
+          <div class="portfolio-header-content">
+            <div class="portfolio-title">🎤 Speak Society</div>
+            <div class="portfolio-subtitle">Public Speaking & Communication</div>
+            <div class="portfolio-stats">
+              <div class="stat"><div class="stat-value">127</div><div class="stat-label">Active Members</div></div>
+              <div class="stat"><div class="stat-value">20</div><div class="stat-label">Events Held</div></div>
+              <div class="stat"><div class="stat-value">12</div><div class="stat-label">Debates Conducted</div></div>
+            </div>
+          </div>
+        </div>
+
+        <div class="portfolio-section">
+          <div class="portfolio-section-title"><span class="section-icon">📝</span> About Club</div>
+          <p class="about-text">Speak Society is committed to building confident communicators and inspiring speakers. Through regular workshops, debate competitions, and public speaking events, members develop crucial soft skills. We cover topics like presentation skills, storytelling, debate strategies, and leadership communication. Our members have successfully competed in national speaking competitions.</p>
+          <p class="about-text">Founded in July 2024, our vision is to empower students with the confidence and skills to communicate effectively. We provide a supportive platform for members to practice, learn, and grow as communicators.</p>
+        </div>
+
+        <div class="portfolio-section">
+          <div class="portfolio-section-title"><span class="section-icon">🎬</span> Featured Initiatives</div>
+          <div class="projects-grid">
+            <div class="project-card"><div class="project-title">Speaker Series</div><div class="project-desc">Monthly invited speaker sessions with industry experts and accomplished professionals</div></div>
+            <div class="project-card"><div class="project-title">Debate Tournament</div><div class="project-desc">Inter-college debate championships with multiple rounds and exciting prizes</div></div>
+            <div class="project-card"><div class="project-title">Workshop Series</div><div class="project-desc">Masterclasses on presentation skills, storytelling, and public speaking techniques</div></div>
+          </div>
+        </div>
+
+        <div class="portfolio-section">
+          <div class="portfolio-section-title"><span class="section-icon">👥</span> Club Leadership</div>
+          <div class="members-grid">
+            <div class="member-card"><div class="member-avatar">👩‍🏫</div><div class="member-name">Deepika Chopra</div><div class="member-role">Club Lead</div></div>
+            <div class="member-card"><div class="member-avatar">👨‍🎤</div><div class="member-name">Rohan Gupta</div><div class="member-role">Co-Lead</div></div>
+            <div class="member-card"><div class="member-avatar">🎯</div><div class="member-name">Sneha Pandey</div><div class="member-role">Communication Coach</div></div>
+          </div>
+        </div>
+
+        <div class="portfolio-section">
+          <div class="portfolio-section-title"><span class="section-icon">🏆</span> Achievements</div>
+          <ul class="achievements-list">
+            <li>🏆 Won National Debate Championship 2024 - Grand Final Victory</li>
+            <li>🎤 Hosted 15+ speaking events with diverse themes and audiences</li>
+            <li>📣 Trained 200+ students in public speaking and communication skills</li>
+            <li>🌟 90% member participation rate in competitions and events</li>
+            <li>🎓 5 members selected for inter-university debate competitions</li>
+          </ul>
+        </div>
+
+        <div class="portfolio-section">
+          <div class="portfolio-section-title"><span class="section-icon">📧</span> Get Involved</div>
+          <p class="about-text">Transform your communication skills with Speak Society! Whether you're a beginner or experienced speaker, we have something for everyone. Join us for weekly practice sessions, debate clubs, and networking events. All skill levels welcome. Meetings every Tuesday at 6 PM in Auditorium. Contact us at speaksociety@college.edu</p>
+          <button class="nav-btn" style="margin-top:12px">Join Club</button>
+        </div>
+      </div>
+    </div>
+
+    <div id="societies-section" class="tab-content" style="display:none">
+      <div class="portfolio-section">
+        <div class="portfolio-section-title"><span class="section-icon">🎭</span> Student Societies</div>
+        <p class="about-text">Coming soon! More student societies and cultural organizations will be added soon. This section will showcase arts, music, cultural, and literary societies across campus.</p>
+      </div>
+    </div>
+
+    <div id="events-section" class="tab-content" style="display:none">
+      <div class="portfolio-section">
+        <div class="portfolio-section-title"><span class="section-icon">📅</span> Upcoming Events</div>
+        <p class="about-text">Coming soon! Track all upcoming competitions, hackathons, workshops, and events organized by various clubs and societies.</p>
+      </div>
+    </div>
+
+    <div id="interests-section" class="tab-content" style="display:none">
+      <div class="portfolio-section">
+        <div class="portfolio-section-title"><span class="section-icon">⭐</span> My Clubs & Interests</div>
+        <p class="about-text">Coming soon! Track your club memberships, upcoming deadlines, and personalized club recommendations based on your interests.</p>
+      </div>
+    </div>
+
+    <div style="height:20px"></div>
+  </div>
+
+  <div class="footer">
+    <div>
+      <p>© 2025 Student Clubs & Activities Portal | Join us and grow together</p>
+    </div>
+    <a class="nav-btn" href="dashboard2.html">← Back to Dashboard</a>
+  </div>
+</body>
+</html>
+
+
